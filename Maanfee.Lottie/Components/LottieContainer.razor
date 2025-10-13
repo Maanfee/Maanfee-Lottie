@@ -1,0 +1,64 @@
+﻿@inject LottieService Lottie
+@implements IAsyncDisposable
+@namespace Maanfee.Lottie
+
+<div @ref="containerElement" class="lottie-container"></div>
+
+@code {
+    [Parameter]
+    public string AnimationUrl { get; set; } = "";
+
+    [Parameter]
+    public string AnimationJson { get; set; } = "";
+
+    [Parameter]
+    public bool AutoPlay { get; set; } = true;
+
+    [Parameter]
+    public bool Loop { get; set; } = true;
+
+    [Parameter]
+    public string Renderer { get; set; } = "svg";
+
+    [Parameter]
+    public EventCallback OnLoaded { get; set; }
+
+    private ElementReference containerElement;
+    private bool isInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && (!string.IsNullOrEmpty(AnimationUrl) || !string.IsNullOrEmpty(AnimationJson)))
+        {
+            await InitializeAnimation();
+        }
+    }
+
+    private async Task InitializeAnimation()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(AnimationJson))
+            {
+                await Lottie.InitializeWithJsonAsync(containerElement, AnimationJson, Renderer, Loop, AutoPlay);
+            }
+            else if (!string.IsNullOrEmpty(AnimationUrl))
+            {
+                await Lottie.InitializeAsync(containerElement, AnimationUrl, Renderer, Loop, AutoPlay);
+            }
+
+            isInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing animation: {ex.Message}");
+            // در صورت خطا، وضعیت را reset کنید
+            isInitialized = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Lottie.DisposeAsync();
+    }
+}
