@@ -1,0 +1,51 @@
+﻿@page "/URL"
+@using Maanfee.Lottie;
+@inject LottieService Lottie
+@inject AnimationService AnimationService
+
+<PageTitle>Lottie</PageTitle>
+
+<style>
+
+    .controls {
+        margin: 1rem 0;
+        text-align: center;
+    }
+
+        .controls button {
+            margin: 0 0.5rem;
+        }
+
+</style>
+
+<LottieContainer AnimationUrl="Animations/Biking.json" OnLoaded="OnLoadingLoaded" />
+
+<div class="controls">
+    <button @onclick="Play" class="btn btn-primary">Play</button>
+    <button @onclick="Pause" class="btn btn-warning">Pause</button>
+</div>
+
+@code {
+
+    private void OnLoadingLoaded()
+    {
+        Console.WriteLine("Loading animation loaded!");
+    }
+
+    private async Task Play()
+    {
+        if (Lottie != null)
+        {
+            await Lottie.Play();
+        }
+    }
+
+    private async Task Pause()
+    {
+        if (Lottie != null)
+            await Lottie.Pause();
+    }
+
+    private Random random = new Random();
+
+}
