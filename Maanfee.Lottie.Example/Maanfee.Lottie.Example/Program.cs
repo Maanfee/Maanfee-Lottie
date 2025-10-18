@@ -1,13 +1,14 @@
 using Maanfee.Lottie;
-using Maanfee.Lottie.Examples.Components;
+using Maanfee.Lottie.Example.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddLottie();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
-
-builder.Services.AddLottie();
 
 var app = builder.Build();
 
@@ -26,7 +27,8 @@ app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(Maanfee.Lottie.Examples.Client._Imports).Assembly);
+    .AddAdditionalAssemblies(typeof(Maanfee.Lottie.Example.Client._Imports).Assembly);
 
 app.Run();
