@@ -18,11 +18,12 @@
     <Copyright>Copyright (c) 2025 Maanfee</Copyright>
     <Authors>Maanfee Team (MF)</Authors>
     <Company>Maanfee</Company>
-    <Version>1.5.0</Version>
+    <Version>1.5.8</Version>
     <RepositoryUrl>https://github.com/Maanfee</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>Icon.png</PackageIcon>
     <ApplicationIcon>favico.ico</ApplicationIcon>
     <!--**********************************************-->
   </PropertyGroup>
@@ -45,6 +46,10 @@
 
   <ItemGroup>
     <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\SolutionItems\Icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
