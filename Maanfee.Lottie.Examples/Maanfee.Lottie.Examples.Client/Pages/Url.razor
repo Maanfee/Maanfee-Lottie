@@ -18,14 +18,18 @@
 
 </style>
 
-<LottieContainer AnimationUrl="Animations/Biking.json" OnLoaded="OnLoadingLoaded" />
+<MaanfeeLottie AnimationUrl="Animations/Biking.json" OnLoaded="OnLottieLoaded" OnError="OnLottieError" />
 
 <div class="controls">
     <button @onclick="Play" class="btn btn-primary">Play</button>
     <button @onclick="Pause" class="btn btn-warning">Pause</button>
 </div>
 
+@str
+
 @code {
+
+    private string str;
 
     private void OnLoadingLoaded()
     {
@@ -47,5 +51,15 @@
     }
 
     private Random random = new Random();
+
+    private void OnLottieLoaded()
+    {
+        str = ("Loading animation loaded!");
+    }
+
+    private void OnLottieError(string error)
+    {
+        str = ($"Error loading animation: {error}");
+    }
 
 }

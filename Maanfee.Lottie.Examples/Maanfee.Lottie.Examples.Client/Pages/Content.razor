@@ -41,7 +41,8 @@
     </select>
 </div>
 
-<LottieContainer AnimationJson="@content" OnLoaded="OnLoadingLoaded" @key="SelectedAnimation.FullPath" />
+<MaanfeeLottie AnimationJson="@content" @key="SelectedAnimation.FullPath"
+               OnLoaded="OnLottieLoaded" OnError="OnLottieError" />
 
 <div class="controls">
     <button @onclick="Play" class="btn btn-primary">Play</button>
@@ -49,7 +50,10 @@
     <button @onclick="RandomAnimation" class="btn btn-success">Random</button>
 </div>
 
+@str
+
 @code {
+    private string str;
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,9 +88,14 @@
         StateHasChanged();
     }
 
-    private void OnLoadingLoaded()
+    private void OnLottieLoaded()
     {
-        Console.WriteLine("Loading animation loaded!");
+        str = ("Loading animation loaded!");
+    }
+
+    private void OnLottieError(string error)
+    {
+        str = ($"Error loading animation: {error}");
     }
 
     private async Task Play()

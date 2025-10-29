@@ -1,32 +1,17 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.RenderTree;
+﻿using Maanfee.JsServices;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace Maanfee.Lottie
 {
-    public class LottieService : IAsyncDisposable
+    public class LottieService : JsService, IAsyncDisposable
     {
-        private readonly IJSRuntime _jsRuntime;
-        private IJSObjectReference _module;
-        private IJSObjectReference _animationInstance;
-        private DotNetObjectReference<LottieService> _dotNetRef;
-        private bool _disposed = false;
-
-        public LottieService(IJSRuntime jsRuntime)
+        public LottieService(IJSRuntime JSRuntime) : base(JSRuntime, "Maanfee.Lottie")
         {
-            _jsRuntime = jsRuntime;
         }
 
-        private async Task EnsureModuleLoaded()
-        {
-            if (_module == null)
-            {
-                _module = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Maanfee.Lottie/js/JsInterop.js");
-
-                // اطمینان از بارگذاری وابستگی‌ها
-                await _module.InvokeVoidAsync("ensureDependencies");
-            }
-        }
+        private IJSObjectReference _AnimationInstance;
+        protected DotNetObjectReference<LottieService> _DotNetRef;
 
         public async Task InitializeAsync(ElementReference containerElement, string AnimationUrl,
             string Renderer, bool Loop, bool AutoPlay)
@@ -34,15 +19,15 @@ namespace Maanfee.Lottie
             await EnsureModuleLoaded();
 
             // اگر انیمیشن قبلی وجود دارد، آن را destroy کنید
-            if (_animationInstance != null)
+            if (_AnimationInstance != null)
             {
-                await _module.InvokeVoidAsync("destroy", _animationInstance);
-                await _animationInstance.DisposeAsync();
+                await _Module.InvokeVoidAsync("destroy", _AnimationInstance);
+                await _AnimationInstance.DisposeAsync();
             }
 
-            _dotNetRef = DotNetObjectReference.Create(this);
+            _DotNetRef = DotNetObjectReference.Create(this);
 
-            _animationInstance = await _module.InvokeAsync<IJSObjectReference>("loadAnimation", containerElement, AnimationUrl, Renderer, Loop, AutoPlay);
+            _AnimationInstance = await _Module.InvokeAsync<IJSObjectReference>("loadAnimation", containerElement, AnimationUrl, Renderer, Loop, AutoPlay);
 
             if (OnLoaded.HasDelegate)
             {
@@ -56,15 +41,15 @@ namespace Maanfee.Lottie
             await EnsureModuleLoaded();
 
             // اگر انیمیشن قبلی وجود دارد، آن را destroy کنید
-            if (_animationInstance != null)
+            if (_AnimationInstance != null)
             {
-                await _module.InvokeVoidAsync("destroy", _animationInstance);
-                await _animationInstance.DisposeAsync();
+                await _Module.InvokeVoidAsync("destroy", _AnimationInstance);
+                await _AnimationInstance.DisposeAsync();
             }
 
-            _dotNetRef = DotNetObjectReference.Create(this);
+            _DotNetRef = DotNetObjectReference.Create(this);
 
-            _animationInstance = await _module.InvokeAsync<IJSObjectReference>("loadAnimationWithJson", container, animationJson, renderer, loop, autoplay);
+            _AnimationInstance = await _Module.InvokeAsync<IJSObjectReference>("loadAnimationWithJson", container, animationJson, renderer, loop, autoplay);
 
             if (OnLoaded.HasDelegate)
             {
@@ -74,65 +59,59 @@ namespace Maanfee.Lottie
 
         public async Task Play()
         {
-            if (_animationInstance != null)
+            if (_AnimationInstance != null)
             {
-                await _module.InvokeVoidAsync("play", _animationInstance);
+                await _Module.InvokeVoidAsync("play", _AnimationInstance);
             }
         }
 
         public async Task Pause()
         {
-            if (_animationInstance != null)
+            if (_AnimationInstance != null)
             {
-                await _module.InvokeVoidAsync("pause", _animationInstance);
+                await _Module.InvokeVoidAsync("pause", _AnimationInstance);
             }
         }
 
         public async Task Stop()
         {
-            if (_animationInstance != null)
+            if (_AnimationInstance != null)
             {
-                await _module.InvokeVoidAsync("stop", _animationInstance);
+                await _Module.InvokeVoidAsync("stop", _AnimationInstance);
             }
         }
 
         public async Task SetSpeed(float speed)
         {
-            if (_animationInstance != null)
+            if (_AnimationInstance != null)
             {
-                await _module.InvokeVoidAsync("setSpeed", _animationInstance, speed);
+                await _Module.InvokeVoidAsync("setSpeed", _AnimationInstance, speed);
             }
         }
 
         public async Task GoToAndPlay(int value)
         {
-            if (_animationInstance != null)
+            if (_AnimationInstance != null)
             {
-                await _module.InvokeVoidAsync("goToAndPlay", _animationInstance, value);
+                await _Module.InvokeVoidAsync("goToAndPlay", _AnimationInstance, value);
             }
         }
 
-        public async ValueTask DisposeAsync()
+        public new async ValueTask DisposeAsync()
         {
-            if (!_disposed)
+            if (!IsDisposed)
             {
-                if (_animationInstance != null)
+                if (_AnimationInstance != null)
                 {
-                    await _module.InvokeVoidAsync("destroy", _animationInstance);
-                    await _animationInstance.DisposeAsync();
-                    _animationInstance = null;
+                    await _Module.InvokeVoidAsync("destroy", _AnimationInstance);
+                    await _AnimationInstance.DisposeAsync();
+                    _AnimationInstance = null;
                 }
 
-                if (_module != null)
-                {
-                    await _module.DisposeAsync();
-                    _module = null;
-                }
+                _DotNetRef?.Dispose();
+                _DotNetRef = null;
 
-                _dotNetRef?.Dispose();
-                _dotNetRef = null;
-
-                _disposed = true;
+                await base.DisposeAsync();
             }
         }
 

@@ -4,7 +4,7 @@ namespace Maanfee.Lottie
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddLottie(this IServiceCollection services)
+        public static IServiceCollection AddMaanfeeLottie(this IServiceCollection services)
         {
             services.AddScoped<LottieService>();
             services.AddSingleton<AnimationService>();

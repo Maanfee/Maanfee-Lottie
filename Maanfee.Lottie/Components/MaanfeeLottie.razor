@@ -37,9 +37,6 @@
     [Parameter]
     public string Renderer { get; set; } = "svg";
 
-    [Parameter]
-    public EventCallback OnLoaded { get; set; }
-
     private ElementReference containerElement;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -62,12 +59,31 @@
             {
                 await Lottie.InitializeAsync(containerElement, AnimationUrl, Renderer, Loop, AutoPlay);
             }
+
+            await OnLoaded.InvokeAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error initializing animation: {ex.Message}");
+            await OnError.InvokeAsync(ex.Message);
+        }
+        finally
+        {
+            // IsLoading = false;
+            StateHasChanged();
         }
     }
+
+    #region Events
+
+    [Parameter]
+    public EventCallback OnLoaded { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnError { get; set; }
+
+    #endregion
+
+    // ********************************************
 
     public async ValueTask DisposeAsync()
     {
