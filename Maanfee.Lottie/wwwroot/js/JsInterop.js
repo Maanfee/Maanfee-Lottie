@@ -1,6 +1,6 @@
 ﻿
 export async function ensureDependencies() {
-    if (typeof window.$ === 'undefined' || typeof window.$.fn.turn === 'undefined') {
+    if (typeof window.lottie === 'undefined') {
         await LoadScript('_content/Maanfee.Lottie/js/lottie.js');
     }
 }
@@ -60,38 +60,64 @@ export async function loadAnimationWithJson(container, animationJson, renderer =
     });
 }
 
-export async function play(animationInstance) {
+export function play(animationInstance) {
+    animationInstance?.play();
+}
+
+export function pause(animationInstance) {
+    animationInstance?.pause();
+}
+
+export function stop(animationInstance) {
+    animationInstance?.stop();
+}
+
+export function setSpeed(animationInstance, speed) {
+    animationInstance?.setSpeed(speed);
+}
+
+export function goToAndStop(animationInstance, value) {
+    animationInstance?.goToAndStop(value, true);
+}
+
+export function goToAndPlay(animationInstance, value) {
+    animationInstance?.goToAndPlay(value, true);
+}
+
+export async function setLoop(animationInstance, loop) {
     if (animationInstance) {
-        animationInstance.play();
+        animationInstance.loop = loop;
     }
 }
 
-export async function pause(animationInstance) {
-    if (animationInstance) {
-        animationInstance.pause();
-    }
+export function destroy(animationInstance) {
+    animationInstance?.destroy();
 }
 
-export async function stop(animationInstance) {
-    if (animationInstance) {
-        animationInstance.stop();
-    }
+// *****************************************************
+
+export function registerEventListeners(animationInstance, dotNetRef) {
+    animationInstance.addEventListener('enterFrame', function () {
+        const state = {
+            currentFrame: Math.floor(animationInstance.currentFrame),
+            totalFrames: Math.floor(animationInstance.totalFrames),
+            isPlaying: !animationInstance.isPaused
+        };
+        dotNetRef.invokeMethodAsync('OnAnimationUpdate', state.currentFrame, state.totalFrames, state.isPlaying);
+    });
+
+    animationInstance.addEventListener('complete', function () {
+        dotNetRef.invokeMethodAsync('OnAnimationComplete');
+    });
 }
 
-export async function setSpeed(animationInstance, speed) {
-    if (animationInstance) {
-        animationInstance.setSpeed(speed);
-    }
-}
+export function getAnimationState(animationInstance) {
+    if (!animationInstance)
+        return null;
 
-export async function goToAndPlay(animationInstance, value) {
-    if (animationInstance) {
-        animationInstance.goToAndPlay(value);
-    }
-}
-
-export async function destroy(animationInstance) {
-    if (animationInstance) {
-        animationInstance.destroy();
-    }
+    return {
+        currentFrame: Math.floor(animationInstance.currentFrame),
+        totalFrames: Math.floor(animationInstance.totalFrames),
+        isPlaying: !animationInstance.isPaused
+    };
 }

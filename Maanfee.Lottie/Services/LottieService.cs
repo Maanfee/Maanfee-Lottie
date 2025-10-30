@@ -13,6 +13,26 @@ namespace Maanfee.Lottie
         private IJSObjectReference _AnimationInstance;
         protected DotNetObjectReference<LottieService> _DotNetRef;
 
+        public new async ValueTask DisposeAsync()
+        {
+            if (!IsDisposed)
+            {
+                if (_AnimationInstance != null)
+                {
+                    await _Module.InvokeVoidAsync("destroy", _AnimationInstance);
+                    await _AnimationInstance.DisposeAsync();
+                    _AnimationInstance = null;
+                }
+
+                _DotNetRef?.Dispose();
+                _DotNetRef = null;
+
+                await base.DisposeAsync();
+            }
+        }
+
+        // ********************************************
+
         public async Task InitializeAsync(ElementReference containerElement, string AnimationUrl,
             string Renderer, bool Loop, bool AutoPlay)
         {
@@ -97,26 +117,36 @@ namespace Maanfee.Lottie
             }
         }
 
-        public new async ValueTask DisposeAsync()
+        public async Task GoToAndStop(int value) =>
+            await _Module.InvokeVoidAsync("goToAndStop", _AnimationInstance, value);
+
+        public async Task SetLoop(bool loop)
         {
-            if (!IsDisposed)
+            if (_AnimationInstance != null)
             {
-                if (_AnimationInstance != null)
-                {
-                    await _Module.InvokeVoidAsync("destroy", _AnimationInstance);
-                    await _AnimationInstance.DisposeAsync();
-                    _AnimationInstance = null;
-                }
-
-                _DotNetRef?.Dispose();
-                _DotNetRef = null;
-
-                await base.DisposeAsync();
+                await _Module.InvokeVoidAsync("setLoop", _AnimationInstance, loop);
             }
         }
 
+        public EventCallback OnLoaded { get; set; }
+
         // ********************************************
 
-        public EventCallback OnLoaded { get; set; }
+        public async Task RegisterEventListeners(DotNetObjectReference<MaanfeeLottie> dotNetRef)
+        {
+            if (_AnimationInstance != null)
+            {
+                await _Module.InvokeVoidAsync("registerEventListeners", _AnimationInstance, dotNetRef);
+            }
+        }
+
+        public async Task<AnimationState> GetAnimationState()
+        {
+            if (_AnimationInstance != null)
+            {
+                return await _Module.InvokeAsync<AnimationState>("getAnimationState", _AnimationInstance);
+            }
+            return null;
+        }
     }
 }

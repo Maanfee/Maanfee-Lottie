@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/Custom"
 @using Maanfee.Lottie;
 @inject LottieService Lottie
 @inject AnimationService AnimationService
@@ -41,14 +41,16 @@
     </select>
 </div>
 
-<MaanfeeLottie AnimationJson="@content" @key="SelectedAnimation.FullPath"
+<MaanfeeLottie AnimationJson="@content" @key="SelectedAnimation.FullPath" HasController="false"
                OnLoaded="OnLottieLoaded" OnError="OnLottieError" Renderer="LottieRendererType.SVG" />
 
 <div class="controls">
+    <button @onclick="Play" class="btn btn-primary">Play</button>
+    <button @onclick="Pause" class="btn btn-warning">Pause</button>
     <button @onclick="RandomAnimation" class="btn btn-success">Random</button>
 </div>
 
-@* @str *@
+@str
 
 @code {
     private string str;
@@ -94,6 +96,20 @@
     private void OnLottieError(string error)
     {
         str = ($"Error loading animation: {error}");
+    }
+
+    private async Task Play()
+    {
+        if (Lottie != null)
+        {
+            await Lottie.Play();
+        }
+    }
+
+    private async Task Pause()
+    {
+        if (Lottie != null)
+            await Lottie.Pause();
     }
 
     private Random random = new Random();

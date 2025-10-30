@@ -18,13 +18,17 @@
     <Copyright>Copyright (c) 2025 Maanfee</Copyright>
     <Authors>Maanfee Team (MF)</Authors>
     <Company>Maanfee</Company>
-    <Version>1.5.8</Version>
-    <RepositoryUrl>https://github.com/Maanfee</RepositoryUrl>
+    <Version>2.1.0</Version>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageIcon>Icon.png</PackageIcon>
     <ApplicationIcon>favico.ico</ApplicationIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/Maanfee</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Maanfee/Maanfee-Lottie</RepositoryUrl>
+    <Description>Maanfee Lottie is a comprehensive Blazor component library for easily embedding and playing Lottie animations in Blazor applications with full JavaScript interop support.</Description>
+    <PackageTags>C#;Lottie;Blazor;Maanfee</PackageTags>
     <!--**********************************************-->
   </PropertyGroup>
 
@@ -46,6 +50,10 @@
 
   <ItemGroup>
     <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

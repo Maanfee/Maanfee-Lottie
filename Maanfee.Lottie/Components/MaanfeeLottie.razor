@@ -1,6 +1,6 @@
 ﻿@namespace Maanfee.Lottie
+@using Microsoft.JSInterop
 @implements IAsyncDisposable
-@inject LottieService Lottie
 
 <style>
 
@@ -10,12 +10,22 @@
         margin: 1rem 0;
         border: 1px solid #ddd;
         border-radius: 8px;
-        background: #f9f9f9;
+        background: transparent !important;
     }
 
 </style>
 
-<div @ref="containerElement" class="@Class"></div>
+<div @ref="LottieContainer" class="@Class"></div>
+
+<!-- Controls -->
+@if (HasController)
+{
+    <LottieController @ref="Controller"
+                      OnPlayStateChanged="OnPlayStateChanged"
+                      OnProgressChangedCallback="OnProgressChanged"
+                      OnSpeedChanged="OnSpeedChanged"
+                      OnLoopToggled="OnLoopToggled" />
+}
 
 @code {
 
@@ -35,43 +45,10 @@
     public bool Loop { get; set; } = true;
 
     [Parameter]
-    public string Renderer { get; set; } = "svg";
+    public bool HasController { get; set; } = true;
 
-    private ElementReference containerElement;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && (!string.IsNullOrEmpty(AnimationUrl) || !string.IsNullOrEmpty(AnimationJson)))
-        {
-            await InitializeAnimation();
-        }
-    }
-
-    private async Task InitializeAnimation()
-    {
-        try
-        {
-            if (!string.IsNullOrEmpty(AnimationJson))
-            {
-                await Lottie.InitializeWithJsonAsync(containerElement, AnimationJson, Renderer, Loop, AutoPlay);
-            }
-            else if (!string.IsNullOrEmpty(AnimationUrl))
-            {
-                await Lottie.InitializeAsync(containerElement, AnimationUrl, Renderer, Loop, AutoPlay);
-            }
-
-            await OnLoaded.InvokeAsync();
-        }
-        catch (Exception ex)
-        {
-            await OnError.InvokeAsync(ex.Message);
-        }
-        finally
-        {
-            // IsLoading = false;
-            StateHasChanged();
-        }
-    }
+    [Parameter]
+    public LottieRendererType Renderer { get; set; } = LottieRendererType.SVG;
 
     #region Events
 
@@ -83,10 +60,183 @@
 
     #endregion
 
+    private ElementReference LottieContainer;
+    private LottieController Controller;                        //
+    private Timer AnimationTimer;                               //
+    private DotNetObjectReference<MaanfeeLottie> DotNetRef;    //
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && (!string.IsNullOrEmpty(AnimationUrl) || !string.IsNullOrEmpty(AnimationJson)))
+        {
+            await InitializeAnimation();
+
+            // شروع تایمر برای به‌روزرسانی وضعیت
+            AnimationTimer = new Timer(async _ => await UpdateAnimationState(), null, 0, 100);
+        }
+    }
+
+    private async Task InitializeAnimation()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(AnimationJson))
+            {
+                await Lottie.InitializeWithJsonAsync(LottieContainer, AnimationJson, Renderer.ToStringValue(), Loop, AutoPlay);
+            }
+            else if (!string.IsNullOrEmpty(AnimationUrl))
+            {
+                await Lottie.InitializeAsync(LottieContainer, AnimationUrl, Renderer.ToStringValue(), Loop, AutoPlay);
+            }
+
+            // ثبت listener برای رویدادهای انیمیشن
+            DotNetRef = DotNetObjectReference.Create(this);
+            await RegisterAnimationListeners();
+
+            if (OnLoaded.HasDelegate)
+            {
+                await OnLoaded.InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            if (OnError.HasDelegate)
+            {
+                await OnError.InvokeAsync(ex.Message);
+            }
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    //
+    private async Task RegisterAnimationListeners()
+    {
+        try
+        {
+            await Lottie.RegisterEventListeners(DotNetRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error registering listeners: {ex.Message}");
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnAnimationUpdate(int currentFrame, int totalFrames, bool isPlaying)
+    {
+        // به‌روزرسانی وضعیت کنترلر
+        Controller?.UpdateState(isPlaying, currentFrame, totalFrames);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public async Task OnAnimationComplete()
+    {
+        // وقتی انیمیشن تمام شد
+        Controller?.UpdateState(false, Controller.TotalFrames, Controller.TotalFrames);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdateAnimationState()
+    {
+        try
+        {
+            // دریافت وضعیت فعلی انیمیشن از JavaScript
+            var state = await Lottie.GetAnimationState();
+            if (state != null)
+            {
+                await OnAnimationUpdate(state.CurrentFrame, state.TotalFrames, state.IsPlaying);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating animation state: {ex.Message}");
+        }
+    }
+    //
+
+    // ********************************************
+
+    private async void OnPlayStateChanged()
+    {
+        try
+        {
+            if (Controller.IsPlaying)
+            {
+                await Lottie.Play();
+            }
+            else
+            {
+                await Lottie.Pause();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error changing play state: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    private async void OnProgressChanged(int targetFrame)
+    {
+        try
+        {
+            // if (Controller != null)
+            //     await Lottie.GoToAndPlay(targetFrame);
+            // اول به فریم مورد نظر برو و توقف کن
+            await Lottie.GoToAndStop(targetFrame);
+
+            // سپس اگر انیمیشن باید پخش شود، play کن
+            if (Controller?.IsPlaying == true)
+            {
+                await Lottie.Play();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error changing progress: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    private async void OnSpeedChanged(float speed)
+    {
+        try
+        {
+            await Lottie.SetSpeed(speed);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error setting speed: {ex.Message}");
+        }
+    }
+
+    private async void OnLoopToggled(bool isLooping)
+    {
+        try
+        {
+            await Lottie.SetLoop(isLooping);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating loop state: {ex.Message}");
+        }
+    }
+
     // ********************************************
 
     public async ValueTask DisposeAsync()
     {
-        await Lottie.DisposeAsync();
+        AnimationTimer?.Dispose();
+        DotNetRef?.Dispose();
+
+        if (Lottie != null)
+        {
+            await Lottie.DisposeAsync();
+        }
     }
+
 }

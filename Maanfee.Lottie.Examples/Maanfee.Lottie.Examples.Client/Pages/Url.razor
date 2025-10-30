@@ -18,12 +18,8 @@
 
 </style>
 
-<MaanfeeLottie AnimationUrl="Animations/Biking.json" OnLoaded="OnLottieLoaded" OnError="OnLottieError" />
-
-<div class="controls">
-    <button @onclick="Play" class="btn btn-primary">Play</button>
-    <button @onclick="Pause" class="btn btn-warning">Pause</button>
-</div>
+<MaanfeeLottie AnimationUrl="Animations/Biking.json" OnLoaded="OnLottieLoaded" OnError="OnLottieError"
+               Renderer="LottieRendererType.Canvas" />
 
 @str
 
@@ -35,22 +31,6 @@
     {
         Console.WriteLine("Loading animation loaded!");
     }
-
-    private async Task Play()
-    {
-        if (Lottie != null)
-        {
-            await Lottie.Play();
-        }
-    }
-
-    private async Task Pause()
-    {
-        if (Lottie != null)
-            await Lottie.Pause();
-    }
-
-    private Random random = new Random();
 
     private void OnLottieLoaded()
     {

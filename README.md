@@ -9,16 +9,31 @@
 - ⚡ **Performance Optimized** - Efficient resource loading and disposal
 - 🎛️ **Complete API** - Play, pause, stop, speed control, and frame navigation
 - 🔄 **Multiple Renderers** - Support for SVG and canvas rendering
+- 🔔 Event Handling - Comprehensive event system for animation state changes
+- 🎯 Frame Accuracy - Precise frame navigation and seeking capabilities
 
 ## Demos
-<div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;"> <div style="text-align: center;"> <img src="SolutionItems/Screenshots/BuildingConstruction.gif" alt="Building Construction Animation" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px;" /> <p style="margin-top: 8px; font-size: 14px;">Building Construction</p> </div> <div style="text-align: center;"> <img src="SolutionItems/Screenshots/DashboardComponents.gif" alt="Dashboard Components Animation" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px;" /> <p style="margin-top: 8px; font-size: 14px;">Dashboard Components</p> </div> <div style="text-align: center;"> <img src="SolutionItems/Screenshots/Lighthouse.gif" alt="Lighthouse Animation" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px;" /> <p style="margin-top: 8px; font-size: 14px;">Lighthouse</p> </div> </div>
+<div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: nowrap;">
+    <div style="text-align: center; flex: 1; min-width: 0;">
+        <img src="SolutionItems/Screenshots/BuildingConstruction.gif" alt="Building Construction Animation" style="width: 120px; height: 90px; object-fit: cover; border-radius: 6px;" />
+        <p style="margin-top: 4px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Building Construction</p>
+    </div>
+    <div style="text-align: center; flex: 1; min-width: 0;">
+        <img src="SolutionItems/Screenshots/DashboardComponents.gif" alt="Dashboard Components Animation" style="width: 120px; height: 90px; object-fit: cover; border-radius: 6px;" />
+        <p style="margin-top: 4px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dashboard Components</p>
+    </div>
+    <div style="text-align: center; flex: 1; min-width: 0;">
+        <img src="SolutionItems/Screenshots/Lighthouse.gif" alt="Lighthouse Animation" style="width: 120px; height: 90px; object-fit: cover; border-radius: 6px;" />
+        <p style="margin-top: 4px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Lighthouse</p>
+    </div>
+</div>
 
 ## Installation and Usage
 Please download the source code and run it to install and use the component.
 
 ## Animation Resources 
 Find beautiful Lottie animations and icons for your projects:
-- [Creattie.com](https://creattie.com/lottie-animated-illustrations/all?type=free&orderBy=order&page=1){:target="_blank"}
-- [icon-icons.com](https://icon-icons.com/pack/University/4302){:target="_blank"}
- 
-Maanfee Lottie makes it simple to bring engaging animations to your Blazor applications with minimal code and maximum flexibility.
+- <a href="https://creattie.com/lottie-animated-illustrations/all?type=free&orderBy=order&page=1" target="_blank">Creattie.com</a>
+- <a href="https://icon-icons.com/pack/University/4302" target="_blank">icon-icons.com</a>
+
+**Maanfee Lottie** makes it simple to bring engaging animations to your Blazor applications with minimal code and maximum flexibility. 🚀

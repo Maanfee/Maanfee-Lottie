@@ -1,0 +1,249 @@
+﻿@namespace Maanfee.Lottie
+
+<div class="lottie-controls">
+    <!-- Control Buttons -->
+    <div class="controls-row">
+        <button class="control-btn" onclick="@HandlePlayPause" disabled="@IsDisabled">
+            @if (IsPlaying)
+            {
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="4" width="4" height="16" rx="1" />
+                    <rect x="14" y="4" width="4" height="16" rx="1" />
+                </svg>
+            }
+            else
+            {
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            }
+        </button>
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <input type="range"
+                   class="progress-slider"
+                   min="0"
+                   max="@TotalFrames"
+                   value="@CurrentProgress"
+                   oninput="@HandleProgressInput"
+                   onchange="@HandleProgressChange"
+                   disabled="@IsDisabled"
+                   style="@GetProgressStyle()" />
+            <div class="time-display">
+                <span>@CurrentFrame</span>/<span>@TotalFrames</span>
+            </div>
+        </div>
+        <button class="control-btn @(IsLooping ? "active" : "")" onclick="@ToggleLoop" disabled="@IsDisabled">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
+            </svg>
+        </button>
+        <div class="speed-control">
+            <button class="control-btn" onclick="@ChangeSpeed" disabled="@IsDisabled">
+                <span class="speed-text">@CurrentSpeed.ToString("0.0")x</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public EventCallback OnPlayStateChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnProgressChangedCallback { get; set; }
+
+    [Parameter]
+    public EventCallback<float> OnSpeedChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnLoopToggled { get; set; }
+
+    public bool IsPlaying { get; set; }
+    public bool IsLooping { get; set; } = true;
+    public float CurrentSpeed { get; set; } = 1.0f;
+    public int CurrentProgress { get; set; }
+    public int CurrentFrame { get; set; }
+    public int TotalFrames { get; set; } = 100;
+    private bool IsDragging = false;
+
+    private bool IsDisabled => TotalFrames == 0;
+
+    private string GetProgressStyle()
+    {
+        return $"background: linear-gradient(to right, #00ddb3 {CurrentProgress}%, #d9e0e6 {CurrentProgress}%);";
+    }
+
+    private async Task HandlePlayPause()
+    {
+        IsPlaying = !IsPlaying;
+        await OnPlayStateChanged.InvokeAsync();
+    }
+
+    private async Task ToggleLoop()
+    {
+        IsLooping = !IsLooping;
+        await OnLoopToggled.InvokeAsync(IsLooping);
+    }
+
+    private async Task ChangeSpeed()
+    {
+        var speeds = new[] { 0.5f, 1.0f, 1.5f, 2.0f };
+        var currentIndex = Array.IndexOf(speeds, CurrentSpeed);
+        CurrentSpeed = speeds[(currentIndex + 1) % speeds.Length];
+        await OnSpeedChanged.InvokeAsync(CurrentSpeed);
+    }
+
+    private void HandleProgressInput(ChangeEventArgs e)
+    {
+        IsDragging = true;
+        if (int.TryParse(e.Value?.ToString(), out var frame))
+        {
+            CurrentFrame = Math.Clamp(frame, 0, TotalFrames);
+        }
+    }
+
+    private async void HandleProgressChange(ChangeEventArgs e)
+    {
+        IsDragging = false;
+        if (int.TryParse(e.Value?.ToString(), out var frame))
+        {
+            CurrentFrame = Math.Clamp(frame, 0, TotalFrames);
+            await OnProgressChangedCallback.InvokeAsync(CurrentFrame);
+        }
+    }
+
+    private void UpdateProgress(int progress)
+    {
+        CurrentProgress = Math.Clamp(progress, 0, 100);
+        CurrentFrame = (int)(TotalFrames * (CurrentProgress / 100.0));
+    }
+
+    public void UpdateState(bool isPlaying, int currentFrame, int totalFrames)
+    {
+        IsPlaying = isPlaying;
+       
+        // فقط زمانی که کاربر اسلایدر را نمی‌کشد، فریم را به‌روزرسانی کن
+        if (!IsDragging)
+        {
+            CurrentFrame = currentFrame;
+        }
+
+        TotalFrames = totalFrames;
+        CurrentProgress = totalFrames > 0 ? (int)((currentFrame / (double)totalFrames) * 100) : 0;
+
+        // فراخوانی StateHasChanged برای به‌روزرسانی UI
+        InvokeAsync(StateHasChanged);
+    }
+
+}
+
+<style>
+
+    .lottie-controls {
+        padding: 0.3rem;
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .progress-container {
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .progress-slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #d9e0e6;
+        outline: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+    }
+
+        .progress-slider:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00ddb3;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-slider:-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00ddb3;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+    .time-display {
+        right: 0;
+        top: -20px;
+        font-size: 0.75rem;
+        color: #666;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .controls-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .control-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        background: #f8f9fa;
+        color: #495057;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+    }
+
+        .control-btn:hover:not(:disabled) {
+            background: #e9ecef;
+            color: #212529;
+            transform: translateY(-1px);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .control-btn.active {
+            background: #00ddb3;
+            color: white;
+        }
+
+    .speed-control .control-btn {
+        width: auto;
+        padding: 0 8px;
+    }
+
+    .speed-text {
+        font-weight: 600;
+        font-size: 0.7rem;
+    }
+
+</style>
