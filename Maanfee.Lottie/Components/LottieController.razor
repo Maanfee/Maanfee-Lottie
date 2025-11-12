@@ -20,14 +20,10 @@
         </button>
         <!-- Progress Bar -->
         <div class="progress-container">
-            <input type="range"
-                   class="progress-slider"
-                   min="0"
-                   max="@TotalFrames"
-                   value="@CurrentProgress"
+            <input type="range" min="0" max="@TotalFrames" class="progress-slider" disabled="@IsDisabled"
+                   value="@CurrentFrame"
                    oninput="@HandleProgressInput"
-                   onchange="@HandleProgressChange"
-                   disabled="@IsDisabled"
+                   onchange="@HandleProgressChange"                   
                    style="@GetProgressStyle()" />
             <div class="time-display">
                 <span>@CurrentFrame</span>/<span>@TotalFrames</span>
@@ -114,12 +110,6 @@
         }
     }
 
-    private void UpdateProgress(int progress)
-    {
-        CurrentProgress = Math.Clamp(progress, 0, 100);
-        CurrentFrame = (int)(TotalFrames * (CurrentProgress / 100.0));
-    }
-
     public void UpdateState(bool isPlaying, int currentFrame, int totalFrames)
     {
         IsPlaying = isPlaying;
@@ -177,7 +167,7 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .progress-slider:-moz-range-thumb {
+        .progress-slider::-moz-range-thumb {
             width: 16px;
             height: 16px;
             border-radius: 50%;

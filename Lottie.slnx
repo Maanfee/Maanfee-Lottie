@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Maanfee.Lottie.Examples/Maanfee.Lottie.Examples.Client/Maanfee.Lottie.Examples.Client.csproj" Id="6ad6ab5b-8757-40b3-88b5-0777d8393cb1" />
+  <Project Path="Maanfee.Lottie.Examples/Maanfee.Lottie.Examples/Maanfee.Lottie.Examples.csproj" Id="b8307366-08fe-4056-8c41-b49a810cd6fa" />
+  <Project Path="Maanfee.Lottie/Maanfee.Lottie.csproj" />
+</Solution>
