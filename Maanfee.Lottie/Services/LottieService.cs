@@ -1,5 +1,4 @@
-﻿using Maanfee.JsServices;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace Maanfee.Lottie
