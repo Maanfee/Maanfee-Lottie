@@ -36,4 +36,14 @@ Find beautiful Lottie animations and icons for your projects:
 - <a href="https://creattie.com/lottie-animated-illustrations/all?type=free&orderBy=order&page=1" target="_blank">Creattie.com</a>
 - <a href="https://icon-icons.com/pack/University/4302" target="_blank">icon-icons.com</a>
 
+
+Resources
+Resize SVG
+	https://www.iloveimg.com/resize-image/resize-svg#resize-options,pixels
+base64 to png converter
+	https://onlinepngtools.com/convert-base64-to-png
+PNG to SVG
+https://png2svg.com/
+
+
 **Maanfee Lottie** makes it simple to bring engaging animations to your Blazor applications with minimal code and maximum flexibility. 🚀
